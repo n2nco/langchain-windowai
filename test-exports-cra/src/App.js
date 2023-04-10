@@ -9,59 +9,73 @@ import { ChatOpenAI } from "langchain/chat_models/openai";
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
+  PromptTemplate
 } from "langchain/prompts";
 
-import { useCallback } from "react";
+
+import { useCallback, useEffect, useState } from "react";
 import { CallbackManager } from "langchain/callbacks";
 
-// Don't do this in your app, it would leak your API key
-const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
+import { WindowAi, ModelID } from "./WindowAi.ts"
+
 
 function App() {
-  const runChain = useCallback(async () => {
-    const llm = new ChatOpenAI({
-      openAIApiKey: OPENAI_API_KEY,
-      streaming: true,
-      callbackManager: CallbackManager.fromHandlers({
-        handleLLMNewToken: async (token) =>
-          console.log("handleLLMNewToken", token),
-      }),
-    });
+  const [input, setInput] = useState("");
+  const [llmResponses, setLlmResponses] = useState([]);
+  const [modelInUse, setModelInUse] = useState("");
 
-    // Test count tokens
-    const n = await llm.getNumTokens("Hello");
-    console.log("getNumTokens", n);
+  const handleSubmit = useCallback(
+    async (event) => {
+      event.preventDefault(); // prevent the default form submission behavior
 
-    // Test a chain + prompt + model
-    const chain = new LLMChain({
-      llm,
-      prompt: ChatPromptTemplate.fromPromptMessages([
-        HumanMessagePromptTemplate.fromTemplate("{input}"),
-      ]),
-    });
-    const res = await chain.run("hello");
+      // Use the user input if available, otherwise use a default question
+      const question = input ? input : "No question entered by user";
 
-    console.log("runChain", res);
-  }, []);
+      // Create the LLM chain
+      const llm = new WindowAi({ completionOptions: { temperature: 0.7, maxTokens: 800, model: ModelID.GPT3 } });
+      const template = `Question: {question}.  Answer: Let's think step by step.`;
+      const prompt = new PromptTemplate({ template:template, inputVariables:["question"] });
+      const llm_chain = new LLMChain({ prompt:prompt, llm:llm });
+
+      // Run the LLM chain
+      const response = await llm_chain.run(input);
+
+      // Update the state variables
+      const model = await llm.getCurrentModel();
+      setModelInUse(model);
+      setLlmResponses((prevResponses) => [...prevResponses, response]);
+
+      // Clear the input field
+      setInput("");
+    },
+    [input]
+  );
 
   return (
     <div className="App">
       <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <button onClick={runChain}>Click to run a chain</button>
+        <h1>WindowAi Langchain Demo</h1>
+        <p className={modelInUse ? "model detected" : "model"} style={{ color: modelInUse ? "green" : "#555" }}>Model in use: {modelInUse ? modelInUse : "not yet detected"}</p>
+
+
+        <p className="subheader">Ask a question and let WindowAi guide you through the reasoning process step by step.</p>
+        <a className="logo" href="https://windowai.io" target="_blank" rel="noopener noreferrer"></a>
+        <form onSubmit={handleSubmit}>
+          <label>
+            <input type="text" className="input" value={input} onChange={(e) => setInput(e.target.value)} placeholder=" Type your question" />
+          </label>
+          <button type="submit" className="button">Submit</button>
+        </form>
+    
+        <div className="responses">
+          {llmResponses.map((response, index) => (
+            <p key={index} className="response">{response}</p>
+          ))}
+        </div>
       </header>
     </div>
   );
 }
+
 
 export default App;
