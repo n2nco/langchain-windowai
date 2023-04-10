@@ -49,6 +49,7 @@ export class WindowAi extends LLM implements WindowAiInput {
   }
 
   async _call(prompt: string): Promise<string> {
+    await this._ensureAiAvailable()
     const input: Input = typeof prompt === "string" ? { prompt } : { messages: prompt };
 
     try {

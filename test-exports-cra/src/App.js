@@ -19,6 +19,12 @@ import { CallbackManager } from "langchain/callbacks";
 import { WindowAi, ModelID } from "./WindowAi.ts"
 
 
+import { DynamicTool } from "langchain/tools";
+
+import { OpenAI } from "langchain/llms/openai";
+import { initializeAgentExecutor, ZapierToolKit, OpenApiToolkit } from "langchain/agents";
+import { ZapierNLAWrapper } from "langchain/tools";
+
 function App() {
   const [input, setInput] = useState("");
   const [llmResponses, setLlmResponses] = useState([]);
@@ -27,24 +33,21 @@ function App() {
   const handleSubmit = useCallback(
     async (event) => {
       event.preventDefault(); // prevent the default form submission behavior
-
       // Use the user input if available, otherwise use a default question
       const question = input ? input : "No question entered by user";
-
       // Create the LLM chain
       const llm = new WindowAi({ completionOptions: { temperature: 0.7, maxTokens: 800, model: ModelID.GPT3 } });
       const template = `Question: {question}.  Answer: Let's think step by step.`;
       const prompt = new PromptTemplate({ template:template, inputVariables:["question"] });
-      const llm_chain = new LLMChain({ prompt:prompt, llm:llm });
+     
 
+      const llm_chain = new LLMChain({ prompt:prompt, llm:llm });
       // Run the LLM chain
       const response = await llm_chain.run(input);
-
       // Update the state variables
       const model = await llm.getCurrentModel();
       setModelInUse(model);
       setLlmResponses((prevResponses) => [...prevResponses, response]);
-
       // Clear the input field
       setInput("");
     },
@@ -56,7 +59,6 @@ function App() {
       <header className="App-header">
         <h1>WindowAi Langchain Demo</h1>
         <p className={modelInUse ? "model detected" : "model"} style={{ color: modelInUse ? "green" : "#555" }}>Model in use: {modelInUse ? modelInUse : "not yet detected"}</p>
-
 
         <p className="subheader">Ask a question and let WindowAi guide you through the reasoning process step by step.</p>
         <a className="logo" href="https://windowai.io" target="_blank" rel="noopener noreferrer"></a>
@@ -75,7 +77,30 @@ function App() {
       </header>
     </div>
   );
-}
+ }
 
+const run = async () => {
+    // const model = new OpenAI({ temperature: 0 });
+    var llm = new WindowAi({ completionOptions: { temperature: 0.7, maxTokens: 800, model: ModelID.GPT3 } })
+    const toolkit = await new OpenApiToolkit({llm: llm})
+    
+    const executor = await initializeAgentExecutor(
+      toolkit.tools,
+      llm,
+      "zero-shot-react-description",
+      true
+    );
+    console.log("Loaded agent.");
+  
+    const input = `Summarize the last email I received regarding Silicon Valley Bank. Send the summary to the #test-zapier Slack channel.`;
+  
+    console.log(`Executing with input "${input}"...`);
+  
+    const result = await executor.call({ input });
+  
+    console.log(`Got output ${result.output}`);
+  };
+
+run()
 
 export default App;
