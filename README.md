@@ -1,3 +1,8 @@
+# WindowAI demo:
+- cd test-exports-cra
+- yarn start
+
+
 # 🦜️🔗 LangChain.js
 
 ⚡ Building applications with LLMs through composability ⚡
