@@ -1,6 +1,6 @@
 # WindowAI demo:
 - cd test-exports-cra
-- yarn start
+- yarn install*
 - paste ` "./llms/base.js": "./llms/base.js" ` into the newly installed test-exports-cra/node_modules/langchain/package.json "exports": {
 
 
