@@ -53,6 +53,7 @@ export class WindowAi extends LLM implements WindowAiInput {
     const input: Input = typeof prompt === "string" ? { prompt } : { messages: prompt };
 
     try {
+      var currentModel =  await this.getCurrentModel()
       const output = await this.globalContext.ai.getCompletion(input, this.completionOptions);
       return output.text;
     } catch (error) {

@@ -22,8 +22,8 @@ import { WindowAi, ModelID } from "./WindowAi.ts"
 import { DynamicTool } from "langchain/tools";
 
 import { OpenAI } from "langchain/llms/openai";
-import { initializeAgentExecutor, ZapierToolKit, OpenApiToolkit } from "langchain/agents";
-import { ZapierNLAWrapper } from "langchain/tools";
+// import { initializeAgentExecutor, ZapierToolKit, OpenApiToolkit } from "langchain/agents";
+// import { ZapierNLAWrapper } from "langchain/tools";
 
 function App() {
   const [input, setInput] = useState("");
@@ -39,6 +39,10 @@ function App() {
       const llm = new WindowAi({ completionOptions: { temperature: 0.7, maxTokens: 800, model: ModelID.GPT3 } });
       const template = `Question: {question}.  Answer: Let's think step by step.`;
       const prompt = new PromptTemplate({ template:template, inputVariables:["question"] });
+
+      var r = await llm._call("where is vancouver")
+
+      setLlmResponses((prevResponses) => [...prevResponses, r]);
      
 
       const llm_chain = new LLMChain({ prompt:prompt, llm:llm });
@@ -79,28 +83,28 @@ function App() {
   );
  }
 
-const run = async () => {
-    // const model = new OpenAI({ temperature: 0 });
-    var llm = new WindowAi({ completionOptions: { temperature: 0.7, maxTokens: 800, model: ModelID.GPT3 } })
-    const toolkit = await new OpenApiToolkit({llm: llm})
-    
-    const executor = await initializeAgentExecutor(
-      toolkit.tools,
-      llm,
-      "zero-shot-react-description",
-      true
-    );
-    console.log("Loaded agent.");
-  
-    const input = `Summarize the last email I received regarding Silicon Valley Bank. Send the summary to the #test-zapier Slack channel.`;
-  
-    console.log(`Executing with input "${input}"...`);
-  
-    const result = await executor.call({ input });
-  
-    console.log(`Got output ${result.output}`);
-  };
+// const run = async () => {
+//     // const model = new OpenAI({ temperature: 0 });
+//     var llm = new WindowAi({ completionOptions: { temperature: 0.7, maxTokens: 800, model: ModelID.GPT3 } })
+//     const toolkit = await new OpenApiToolkit({llm: llm})
 
-run()
+//     const executor = await initializeAgentExecutor(
+//       toolkit.tools,
+//       llm,
+//       "zero-shot-react-description",
+//       true
+//     );
+//     console.log("Loaded agent.");
+  
+//     const input = `Summarize the last email I received regarding Silicon Valley Bank. Send the summary to the #test-zapier Slack channel.`;
+  
+//     console.log(`Executing with input "${input}"...`);
+  
+//     const result = await executor.call({ input });
+  
+//     console.log(`Got output ${result.output}`);
+//   };
+
+// run()
 
 export default App;
