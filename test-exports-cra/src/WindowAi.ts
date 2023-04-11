@@ -33,7 +33,7 @@ export class WindowAi extends LLM implements WindowAiInput {
   completionOptions: CompletionOptions;
   globalContext: any;
 
-  constructor(fields?: WindowAiInput) {
+  constructor(fields?:  Partial<WindowAiInput>) {
     super(fields ?? {});
 
     this.completionOptions = fields?.completionOptions ?? {};
@@ -51,9 +51,7 @@ export class WindowAi extends LLM implements WindowAiInput {
   async _call(prompt: string): Promise<string> {
     await this._ensureAiAvailable()
     const input: Input = typeof prompt === "string" ? { prompt } : { messages: prompt };
-
     try {
-      var currentModel =  await this.getCurrentModel()
       const output = await this.globalContext.ai.getCompletion(input, this.completionOptions);
       return output.text;
     } catch (error) {
