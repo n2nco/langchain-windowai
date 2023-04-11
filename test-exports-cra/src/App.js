@@ -40,10 +40,9 @@ function App() {
       const template = `Question: {question}.  Answer: Let's think step by step.`;
       const prompt = new PromptTemplate({ template:template, inputVariables:["question"] });
 
-      var r = await llm._call("where is vancouver")
-
-      setLlmResponses((prevResponses) => [...prevResponses, r]);
-     
+      //Simplr call example for testing:
+      // var r = await llm._call("where is vancouver")
+      // setLlmResponses((prevResponses) => [...prevResponses, r]);
 
       const llm_chain = new LLMChain({ prompt:prompt, llm:llm });
       // Run the LLM chain
