@@ -67,6 +67,9 @@
     "llms/replicate.cjs",
     "llms/replicate.js",
     "llms/replicate.d.ts",
+    "llms/windowai.cjs",
+    "llms/windowai.js",
+    "llms/windowai.d.ts",
     "prompts.cjs",
     "prompts.js",
     "prompts.d.ts",
@@ -394,6 +397,7 @@
       "import": "./index.js",
       "require": "./index.cjs"
     },
+    "./llms/base.js": "./llms/base.js",
     "./agents": {
       "types": "./agents.d.ts",
       "import": "./agents.js",
@@ -482,6 +486,11 @@
       "types": "./llms/cohere.d.ts",
       "import": "./llms/cohere.js",
       "require": "./llms/cohere.cjs"
+    },
+    "./llms/windowai": {
+      "types": "./llms/windowai.d.ts",
+      "import": "./llms/windowai.js",
+      "require": "./llms/windowai.cjs"
     },
     "./llms/hf": {
       "types": "./llms/hf.d.ts",
